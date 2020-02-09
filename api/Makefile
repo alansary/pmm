@@ -27,6 +27,7 @@ gen: clean            ## Generate files.
 
 	./prototool all
 
+	# skip telemetrypb as it is not avaliable via JSON API
 	for API in agentlocalpb serverpb inventorypb managementpb qanpb ; do \
 		set -x ; \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json --keep-spec-order; \
@@ -42,7 +43,8 @@ gen: clean            ## Generate files.
 			--additional-initialism=sql ; \
 	done
 
-	# generate public API spec, omit agentlocalpb (always private) and qanpb (not v1 yet)
+	# generate public PMM Server API spec, omit agentlocalpb and telemetrypb (not PMM Server APIs),
+	# and qanpb (not v1 yet),
 	swagger mixin --output=swagger/swagger.json \
 		swagger/header.json \
 		serverpb/json/serverpb.json \
@@ -64,7 +66,7 @@ clean: clean_swagger  ## Remove generated files.
 	find . -name '*.pb.go' -print -delete
 	find . -name '*.pb.gw.go' -print -delete
 
-	for API in agentlocalpb serverpb inventorypb managementpb qanpb ; do \
+	for API in agentlocalpb serverpb inventorypb managementpb qanpb telemetrypb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$API.json ; \
 	done
 	rm -f swagger/swagger.json
